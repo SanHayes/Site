@@ -1,0 +1,1 @@
+{"type":"kline","period":"1min","match_id":10,"currency_id":10,"currency_name":"BCH","legal_id":3,"legal_name":"USDT","open":"117.79865","close":"117.77865","high":117.8,"low":117.78,"symbol":"BCH\/USDT","volume":10,"time":1682713620000}
