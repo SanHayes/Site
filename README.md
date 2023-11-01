@@ -2,7 +2,7 @@ OS : CentOS 7 64bit
 IP : 27.102.66.193
 username / password : root / ljw3dnjf25dlf!@#$5
 
-## 安装
+## 宝塔安装
 yum install -y wget && wget -O install.sh https://download.bt.cn/install/install_6.0.sh && sh install.sh ed8484bec
 ### 环境
 
@@ -10,12 +10,28 @@ yum install -y wget && wget -O install.sh https://download.bt.cn/install/install
 |----|----|----|
 |Nginx| 1.18|开启静态化|
 |MySQL| 5.6||
-|PHP|7.2|不兼容5.6和8，会出问题|
+|PHP| 必须 7.2 |其他不兼容，会出问题|
 |phpMyAdmin| 4.7|可以不安装|
 |Redis| 7.0 |必须安装|
 |elasticsearch|7.0|
 
 ### 删除所有禁用函数
+
+添加下面 函数禁用
+exec
+system
+shell_exec
+passthru
+chroot
+chgrp
+chown
+proc_open
+proc_get_status
+dl
+ini_restore
+ini_alter
+popen
+pfsockopen
 
 ### PHP扩展：
 |扩展|说明|备注|
@@ -35,6 +51,9 @@ CentOS 7.6.1810(Py2.7.5)
 4核8G 容量大于50G
 
 ## python
+python3
+安装教程https://www.jb51.net/article/254648.htm
+sudo yum install python3-pip
 pip -V
 pip install --upgrade pip
 pip install websocket-client 
@@ -45,14 +64,15 @@ pip install websocket
 php artisan config:cache
 
 ## 设置代理
-  location ~/(wss|socket.io) {
-    # 此处改为 socket.io 后端的 ip 和端⼝即可 
-    proxy_pass http://127.0.0.1:2000; 
-    proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection "upgrade";
-    proxy_http_version 1.1;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header Host $host;
-  }
+location ~/(wss|socket.io) {
+  # 此处改为 socket.io 后端的 ip 和端⼝即可 
+  proxy_pass http://27.102.102.229:2000; 
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_http_version 1.1;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header Host $host;
+}
 
 ## es安装
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
@@ -71,28 +91,33 @@ yum install elasticsearch -y
 service elasticsearch restart
 
 ## 然后添加计划任务
-1
+
+每周1次
+elasticsearch
+service elasticsearch restart
+
+每天一次
+1.webmsgsender
 cd /www/wwwroot/Site/public/vendor/webmsgsender
 php start.php start -d
-2
+2.websocket
 cd /www/wwwroot/Site
 php artisan websocket:client restart
-3
+3.python
 cd /www/wwwroot/Site/python
 pkill python3
 python3 main.py
 
 ## 数据库 
-上传futures.sql之后 附加到数据库，然后修改.env  数据库futures 账号futures 密码futures
+上传site.sql之后 附加到数据库，然后修改.env
 
 ## 开放的端口
-* 服务器需要开放端口2000  6379  3306
-* 测试环境跨域问题，可以开启前端项目中的 proxy，开放端口8070 并安装最新版的node
+* 服务器需要开放端口2000-2003  6379  3306
 
 ## 测试数据
 |用户类型|登录地址|用户名|密码|
 |----|----|----|----|
 |前端用户|/app|123456|123456|
-|手机端|/h5|123456|123456|
+|手机端|/mobile|123456|123456|
 |总管理员|/admin|admin|123456|
 |总代理|/agent|admin|123456|

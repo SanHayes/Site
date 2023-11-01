@@ -125,16 +125,15 @@ class LoginController extends Controller
         $users->head_portrait = URL("mobile/imgs/user.png");
         $users->time = time();
         $users->extension_code = Users::getExtensionCode();
-        
+
         DB::beginTransaction();
         try {
-            if($parent_id != 0){
-                $users->parents_path = UserDAO::getRealParentsPath($users); // 生成parents_path tian add
-                // 代理商节点id。标注该用户的上级代理商节点。这里存的代理商id是agent代理商表中的主键，并不是users表中的id。
-                $users->agent_note_id = Agent::reg_get_agent_id_by_parentid($parent_id);
-                // 代理商节点关系
-                $users->agent_path = Agent::agentPath($parent_id);
-            }
+            $users->parents_path = UserDAO::getRealParentsPath($users); // 生成parents_path tian add
+            // 代理商节点id。标注该用户的上级代理商节点。这里存的代理商id是agent代理商表中的主键，并不是users表中的id。
+            $users->agent_note_id = Agent::reg_get_agent_id_by_parentid($parent_id);
+            // 代理商节点关系
+            $users->agent_path = Agent::agentPath($parent_id);
+            
             $users->save(); // 保存到user表中
             $test = UsersWallet::makeWallet($users->id);
             // DB::rollBack();

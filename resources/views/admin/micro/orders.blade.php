@@ -278,7 +278,7 @@
                     ,{field: 'type_name', title: '类型', width: 80, templet: '#type_name', sort: true}
                     ,{field: 'seconds', title: '秒数', width: 80, templet: '#seconds', sort: true, hide: true}
                     ,{field: 'status_name', title: '交易状态', width: 100, sort: true, templet: '#status_name'}
-                    ,{field: 'number', title: '金额', width: 90, templet: '<div><div style="text-align: right;">@{{Number.parseInt(d.number)}}</div></div>', totalRow: true}
+                    ,{field: 'number', title: '数量', width: 90, templet: '<div><div style="text-align: right;">@{{Number.parseInt(d.number)}}</div></div>', totalRow: true}
                     ,{field: 'fee', title: '手续费', width: 100, totalRow: true, templet: '<div><div style="text-align: right;"><span>@{{Number(d.fee).toFixed(2)}}</span></div></div>'}
                     ,{field: 'pre_profit_result_name', title: '预设', width: 90, sort: true, templet: '#pre_profit_result_name', hide: false}
                     ,{field: 'profit_result_name', title: '结果', width: 90, sort: true, templet: '#profit_result_name', hide: false}

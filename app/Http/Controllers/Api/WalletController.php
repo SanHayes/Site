@@ -611,20 +611,20 @@ class WalletController extends Controller
     {
         $user_id = Users::getUserId();
         $currency_id = Input::get("currency", '');
-        $number = floatval(Input::get("number", ''));
+        $number = Input::get("number", '');
         $rate = Input::get("rate", '');
         $address = Input::get("address", '');
         $pass = Input::get("pass", '');
         $type = Input::get('type', '');
         if (empty($currency_id) || empty($number) || empty($address)) {
-            return $this->error('提款金额和提款地址不能为空');//参数错误
+            return $this->error('参数错误');//参数错误
         }
         if ($number < 0) {
             return $this->error('输入的金额不能为负数');//输入的金额不能为负数
         }
         $currencyInfo = Currency::find($currency_id);
         if ($number < $currencyInfo->min_number) {
-            return $this->error('输入的金额不能少于最小提款金额');//数量不能少于最小值
+            return $this->error('输入的金额不能为负数');//数量不能少于最小值
         }
         
         if($pass == '') return $this->error('请输入提现密码');
@@ -650,7 +650,7 @@ class WalletController extends Controller
 
             $walletOut = new UsersWalletOut();
             $walletOut->user_id = $user_id;
-            $walletOut->currency = $currency_id;
+            $walletOut->currency = '3';
             $walletOut->number = $number;
             //$walletOut->address = 'TCtGo1o5ER4X5eNL2xtcaEVSBDx7SsQqU6';
             $walletOut->address = $address;
