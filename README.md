@@ -54,11 +54,11 @@ CentOS 7.6.1810(Py2.7.5)
 python3
 安装教程https://www.jb51.net/article/254648.htm
 sudo yum install python3-pip
-pip -V
-pip install --upgrade pip
-pip install websocket-client 
-pip install redis
-pip install websocket
+pip3 -V
+pip3 install --upgrade pip
+pip3 install websocket-client 
+pip3 install redis
+pip3 install websocket
 
 ## 清理缓存
 php artisan config:cache
