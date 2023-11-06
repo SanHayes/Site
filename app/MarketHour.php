@@ -515,16 +515,24 @@ class MarketHour extends Model
             $interval = $interval_list[$peroid];
             //$url = "https://m.sojex.net/api.do?rtp=CandleStick&type=".$interval."&qid=".$match->currency_code;
             $API = Setting::getValueByKey('api_url');
-            $url = $API . "?rtp=CandleStick&type=".$interval."&qid=".$match->currency_code;
+            // $API = "https://m.sojex.net/api.do";
+            $urlkey = "rtp=CandleStick&type=".$interval."&qid=".$match->currency_code;
+            $url = $API . "?" . $urlkey;
             $html = self::curlfun($url);
-            //file_put_contents('/www/wwwroot/Site/html.txt',$url.'->'.$html,FILE_APPEND);
             if($html != "SERVER_ERROR"){
-            	$res['data'] = @array_reverse(json_decode($html,true)['data']['candle']);
+                $htmldata = json_decode($html,true);
+                if($htmldata['status'] == 1000){
+                    $candle = @array_reverse($htmldata['data']['candle']);
+                    Redis::set($urlkey,json_encode($candle));
+                }
+            }else{
+                file_put_contents('/www/wwwroot/Site/html.txt',$url.'->'.$html,FILE_APPEND);
             }
-            $data_arr = [];
+            $res['data'] = json_decode(Redis::get($urlkey), true);
             if (!isset($res['data'])) {
                 return [];
             }
+            $data_arr = [];
             foreach ($res['data'] as $key => $item) {
                 $data_arr[] = [
                     "id" => $item['ts']/1000,
