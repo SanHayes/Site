@@ -47,6 +47,9 @@ class MicroTradeLogic
             $seconds = MicroSecond::where('seconds', $seconds)->first();
             throw_unless($seconds, new \Exception('到期时间不允许'));
             //检测数量是否在合法范围内
+            if ($number < $seconds->money) {
+                throw new \Exception('最小下单数量不能小于:' . $seconds->money);
+            }
             /*
             $number_not_exist = $currency->microNumbers->where('number', $number)->isEmpty();
             throw_if($number_not_exist, new \Exception('数量不在有效范围内'));
