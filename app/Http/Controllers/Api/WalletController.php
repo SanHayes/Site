@@ -216,14 +216,14 @@ class WalletController extends Controller
     public function chargeReq(Request $request)
     {
         $currency_id = Input::get("currency", '');
-        $acc = htmlspecialchars(Input::get("acc", ''));
+        $acc = htmlspecialchars(Input::get("acc", '-'));
         $amount = Input::get("amount", 0);
         $hash = htmlspecialchars(Input::get('hash', 0));
         $toAddress = htmlspecialchars(Input::get('type'));
         $image = htmlspecialchars(Input::get('pic', ''));
         $user_id = Users::getUserId();
         
-        if(empty($acc)) return $this->error('请输入充币地址');
+        // if(empty($acc)) return $this->error('请输入充币地址');
         if(empty($image)) return $this->error('请输入转账截图');
         
         $data = [
@@ -624,7 +624,7 @@ class WalletController extends Controller
         }
         $currencyInfo = Currency::find($currency_id);
         if ($number < $currencyInfo->min_number) {
-            return $this->error('输入的金额不能为负数');//数量不能少于最小值
+            return $this->error('输入的金额不能小于'.$currencyInfo->min_number);//数量不能少于最小值
         }
         
         if($pass == '') return $this->error('请输入提现密码');
@@ -650,7 +650,7 @@ class WalletController extends Controller
 
             $walletOut = new UsersWalletOut();
             $walletOut->user_id = $user_id;
-            $walletOut->currency = '3';
+            $walletOut->currency = $currency_id;
             $walletOut->number = $number;
             //$walletOut->address = 'TCtGo1o5ER4X5eNL2xtcaEVSBDx7SsQqU6';
             $walletOut->address = $address;

@@ -822,6 +822,33 @@ class OrderController extends Controller
 
         return $this->ajaxReturn($data);
     }
+    
+    public function batchRisk(Request $request)
+    {
+        $id = $request->input('id', 0);
+        $risk = $request->input('risk', 0);
+        if ($id < 1) {
+            return $this->error('请先选择要处理的交易订单');
+        }
+        if (!in_array($risk, [-1, 0, 1])) {
+            return $this->error('风控类型不正确');
+        }
+        
+        $find_rows = MicroOrder::where('status', MicroOrder::STATUS_OPENED)->where('id', $id)->first();
+        if(empty($find_rows)){
+            return $this->error("该订单已完成交易");
+        }
+        try {
+            $affect_rows = MicroOrder::where('status', MicroOrder::STATUS_OPENED)
+                ->where('id', $id)
+                ->update([
+                    'pre_profit_result' => $risk,
+                ]);
+            return $this->success('设置成功');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage());
+        }
+    }
 
     //秒合约订单
     public function microList(Request $request)

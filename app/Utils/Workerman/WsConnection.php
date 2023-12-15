@@ -340,10 +340,12 @@ class WsConnection
     	        $close_rand = rand(-3,3) * mt_rand($rc_min,$rc_max) / $pow;
     	    }
             $tick = $data->tick;
-            $open = sprintf("%.5f",($tick->open + $close_rand));
+            //$open = sprintf("%.5f",($tick->open + $close_rand));
+            $open = sprintf("%.5f",$tick->open);
             $high = $tick->high;
             $low = $tick->low;
-            $close = sprintf("%.5f",($tick->close + $close_rand));
+            //$close = sprintf("%.5f",($tick->close + $close_rand));
+            $close = sprintf("%.5f",$tick->close);
             if (count($needles) > 0) {
                 $needle = $needles[0];
 
@@ -800,8 +802,10 @@ class WsConnection
         	    }
         	    $high = $obj['h'];//top,h
                 $low = $obj['l']; //low,l
-                $open = sprintf("%.5f",($obj['o'] + $close_rand));//open,o
-                $close = sprintf("%.5f",($obj['c'] + $close_rand));//nowPrice,c
+                // $open = sprintf("%.5f",($obj['o'] + $close_rand));//open,o
+                // $close = sprintf("%.5f",($obj['c'] + $close_rand));//nowPrice,c
+                $open = sprintf("%.5f",$obj['o']);//open,o
+                $close = sprintf("%.5f",$obj['c']);//nowPrice,c
                 $volume = $obj['v'];//rand(50,80),v
                 $date = $obj['ts'];//$this->formatTimeline($interval),ts
                 

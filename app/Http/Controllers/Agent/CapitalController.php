@@ -264,7 +264,10 @@ class CapitalController extends Controller
                 ->where('user_id', $user_id)
                 ->where('currency', $value->id)
                 ->sum('real_number');
-
+            $value->micro_balance = UsersWallet::where('user_id', $user_id)->where('currency', $value->id)->value('micro_balance');
+            $value->lever_balance = UsersWallet::where('user_id', $user_id)->where('currency', $value->id)->value('lever_balance');
+            $value->change_balance = UsersWallet::where('user_id', $user_id)->where('currency', $value->id)->value('change_balance');
+            
             $value->_caution_money = LeverTransaction::where('user_id', $user_id)->whereIn('status', [0, 1, 2])->where('legal', $value->id)->sum('caution_money');
         }
 

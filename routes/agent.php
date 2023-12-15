@@ -77,6 +77,8 @@ Route::group(['prefix' => 'agent', 'middleware' => ['agent_auth']], function () 
     Route::get('order/micro_index', 'Agent\OrderController@microIndex');
     Route::get('micro/currency_show', 'Agent\OrderController@microCurrency');
     Route::post('micro/list', 'Agent\OrderController@microList');
+    //秒合约预设
+    Route::post('order/batch_risk', 'Agent\OrderController@batchRisk');
 
     Route::prefix('common')->namespace('Agent')->group(function () {
         Route::get('legal_currency', 'CommonController@legalCurrency');

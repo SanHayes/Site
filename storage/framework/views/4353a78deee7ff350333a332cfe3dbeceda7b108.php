@@ -199,9 +199,14 @@
   {{# } }}
   </div>
 </script>
-
+<script type="text/html" id="table-agent-yushe">
+    {{# if (d.status == 1) { }}
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="risk_win">盈利</a>
+        <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="risk_lose">亏损</a>
+    {{# } }}
+</script>
 <script>
-
+    
   layui.use(['index','table', 'layer', 'laydate', 'form'], function () {
     var $ = layui.$
       , admin = layui.admin
@@ -228,9 +233,9 @@
       , url: '/agent/micro/list'
       , cols: [[
         { field: '', type: 'checkbox', width: 60 }
-        , { field: '', title: '序号', type: "numbers", width: 90 }
-        , { field: 'id', title: 'ID', width: 100 }
-        , { field: 'account', title: '用户账号', width: 130, sort: true, totalRowText: '小计' }
+        // , { field: '', title: '序号', type: "numbers", width: 90 }
+        , { field: 'id', title: '订单ID', width: 100 }
+        , { field: 'account', title: '会员账号', width: 130, sort: true, totalRowText: '小计' }
         , { field: 'real_name', title: '真实姓名', width: 100 }
         , { field: 'parent_agent_name', title: '所属代理商', width: 120 }
         , { field: 'symbol_name', title: '合约', width: 140, sort: true, templet: '#symbol_name' }
@@ -240,7 +245,7 @@
         , { field: 'status_name', title: '交易状态', width: 100, sort: true, templet: '#status_name' }
         , { field: 'number', title: '数量', width: 90, templet: '<div><div style="text-align: right;">{{Number.parseInt(d.number)}}</div></div>', totalRow: true }
         , { field: 'fee', title: '手续费', width: 100, totalRow: true, templet: '<div><div style="text-align: right;"><span>{{Number(d.fee).toFixed(2)}}</span></div></div>' }
-//        , { field: 'pre_profit_result_name', title: '预设', width: 90, sort: true, templet: '#pre_profit_result_name', hide: false }
+        , { field: 'pre_profit_result_name', title: '预设', width: 90, sort: true, templet: '#pre_profit_result_name', hide: false }
         , { field: 'profit_result_name', title: '结果', width: 90, sort: true, templet: '#profit_result_name', hide: false }
         , { field: 'fact_profits', title: '盈利', width: 100, sort: true, totalRow: true, templet: '#fact_profits' }
         , { field: 'open_price', title: '开仓价', width: 100, templet: '<div><div style="text-align: right;"><span>{{Number(d.open_price).toFixed(4)}}</span></div></div>' }
@@ -249,7 +254,7 @@
         , { field: 'updated_at', title: '更新日期', width: 170, sort: true, hide: true }
         , { field: 'handled_at', title: '平仓时间', width: 170, sort: true, hide: true }
         , { field: 'complete_at', title: '完成时间', width: 170, sort: true, hide: true }
-        //,{fixed: 'right', title: '操作', width: 100, align: 'center', toolbar: '#barDemo'}
+        ,{fixed: 'right', title: '操作', width: 200, align: 'center', toolbar: '#table-agent-yushe'}
       ]]
       , page: true
       , limit: 20
@@ -278,7 +283,47 @@
         }
       }
     });
+    table.on('tool(LAY-user-manage)', function (obj) {
+        var event = obj.event;
+            var data = obj.data;
+            var id = data.id;
+            if(event == 'risk_win'){
+                $.ajax({
+                    url: '/agent/order/batch_risk'
+                    ,type: 'POST'
+                    ,data: {risk: 1, id: id}
+                    ,success: function (res) {
+                        layer.msg(res.msg, {
+                            time: 1000,
+                            end: function () {
+                                data_table.reload();
+                            }
+                        });
+                    }
+                    ,error: function (res) {
+                        layer.msg('网络错误');
+                    }
+                })
 
+            } else if(event == 'risk_lose'){
+                $.ajax({
+                    url: '/agent/order/batch_risk'
+                    ,type: 'POST'
+                    ,data: {risk: -1, id: id}
+                    ,success: function (res) {
+                        layer.msg(res.msg, {
+                            time: 1000,
+                            end: function () {
+                                data_table.reload();
+                            }
+                        });
+                    }
+                    ,error: function (res) {
+                        layer.msg('网络错误');
+                    }
+                })
+            }
+        });
     //监听搜索
     form.on('submit(LAY-user-front-search)', function (data) {
       var a = layui.data('layuiAdmin').access_token;

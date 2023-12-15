@@ -38,8 +38,11 @@
                     ,cols: [[
                             {field: 'id', title: '币种id', width: 70}
                             ,{field: 'name', title: '币种', width: 100, totalRowText: '小计'}
-                            ,{field: '_ru', title: '入金', width: 150, totalRow: true}
-                            ,{field: '_chu', title: '出金', width: 150, totalRow: true}
+                            ,{field: 'micro_balance', title: '期货钱包', width: 150, totalRow: true}
+                            ,{field: 'change_balance', title: '现货钱包', width: 150, totalRow: true}
+                            ,{field: 'lever_balance', title: '合约钱包', width: 150, totalRow: true}
+                            ,{field: '_ru', title: '充值', width: 150, totalRow: true}
+                            ,{field: '_chu', title: '提现', width: 150, totalRow: true}
                             ,{field: '_caution_money', title: '杠杆可用保证金', width: 150, totalRow: true}
                     ]]
                 });

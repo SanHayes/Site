@@ -101,11 +101,11 @@ class CashbController extends Controller
                 $wallet_out->update_time = time();
 
                 $wallet_out->save();
-                $change_result = change_wallet_balance($user_wallet, 2, -$number, AccountLog::WALLETOUTBACK, 'failed,lock balance reduced', true);//提币失败,锁定余额减少
+                $change_result = change_wallet_balance($user_wallet, 2, -$number, AccountLog::WALLETOUTBACK, 'failed,lock balance reduced', true, 0, 0, '', false, true);//提币失败,锁定余额减少
                 if ($change_result !== true) {
                     throw new Exception($change_result);
                 }
-                $change_result = change_wallet_balance($user_wallet, 2, $number, AccountLog::WALLETOUTBACK, 'failed,lock balance withdrawn');
+                $change_result = change_wallet_balance($user_wallet, 2, $number, AccountLog::WALLETOUTBACK, 'failed,lock balance withdrawn', false, 0, 0, '', false, true);
                 if ($change_result !== true) {
                     throw new Exception($change_result);
                 }

@@ -113,6 +113,7 @@
         <div class="layui-btn-group">
             <button class="layui-btn layui-btn-primary" id="spread" type="button" style="padding:0px; width: 30px;"><i class="layui-icon layui-icon-down"></i></button>
             <button class="layui-btn" id="btn-search" lay-submit lay-filter="btn-search"><i class="layui-icon layui-icon-search"></i></button>
+            <button class="layui-btn" lay-filter="btn-reload" onclick="location.reload()"><i class="layui-icon layui-icon-refresh"></i></button>
         </div>
         
     </div>

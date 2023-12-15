@@ -98,6 +98,7 @@
 
 <?php $__env->startSection('scripts'); ?>
     <script type="text/html" id="table-useradmin-webuser">
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="son"><i class="layui-icon layui-icon-group"></i>下级会员</a>
         <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="wallet_info">查看资金</a>
         <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="order">查看合约订单</a>
         <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="micro_risk">秒合约点控</a>

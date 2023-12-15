@@ -48,6 +48,7 @@ class LeverController extends Controller
                 'max' => $curreny_match->lever_max_share,
             ]);
         }
+        
         $my_transaction = LeverTransaction::with('user')
             ->orderBy('id', 'desc')
             ->where("user_id", $user_id)
@@ -74,8 +75,10 @@ class LeverController extends Controller
             $all_levers || $all_levers = 0;
 
         }
+        
         //$match_transaction = $this->getLastMathTransaction($legal_id, $currency_id);
         $lever_transaction = $this->getLastLeverTransaction($legal_id, $currency_id);
+        //var_dump($lever_transaction);die;
         $ustd_price = 0;
         $last = TransactionComplete::orderBy('id', 'desc')
             ->where("currency", $legal_id)
@@ -87,9 +90,10 @@ class LeverController extends Controller
         if ($legal_id == 3) {
             $ustd_price = 1;
         }
+        
         return $this->success([
             //"match_transaction" => $match_transaction,
-            "lever_transaction" => $lever_transaction,
+            // "lever_transaction" => $lever_transaction,
             "my_transaction" => $my_transaction,
             "lever_share_limit" => $lever_share_limit,
             "multiple" => LeverTransaction::leverMultiple($key = 0,$currency_id),
