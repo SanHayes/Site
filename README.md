@@ -97,13 +97,13 @@ service elasticsearch restart
 
 每天一次
 1.webmsgsender
-cd /www/wwwroot/Site/public/vendor/webmsgsender
+cd /www/wwwroot/Site-Bbucoin/public/vendor/webmsgsender
 php start.php start -d
 2.websocket
-cd /www/wwwroot/Site
+cd /www/wwwroot/Site-Bbucoin
 php artisan websocket:client restart
 3.python
-cd /www/wwwroot/Site/python
+cd /www/wwwroot/Site-Bbucoin/python
 pkill python3
 python3 main.py
 
