@@ -722,7 +722,7 @@ class MicroTradeLogic
                 $value->status = MicroOrder::STATUS_CLOSED;
                 $value->fact_profits = $fact_profit;
                 $value->complete_at = Carbon::now();
-                file_put_contents("/www/wwwroot/Site/app/Logic/close.txt", json_encode($value));
+                //file_put_contents("/www/wwwroot/Site/app/Logic/close.txt", json_encode($value));
                 // echo date('Y-m-d H:i:s ') . '===发送平仓通知消息===' . PHP_EOL;
                 SendClosedMicroOrder::dispatch($value)->onQueue('micro_order:closed'); //先推送数据过去
                 $value->save();

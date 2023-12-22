@@ -153,7 +153,7 @@ function sctonum($num, $double = DECIMAL_SCALE)
  */
 function change_wallet_balance(&$wallet, $balance_type, $change, $account_log_type, $memo = '', $is_lock = false, $from_user_id = 0, $extra_sign = 0, $extra_data = '', $zero_continue = false, $overflow = false)
 {
-    file_put_contents('/www/wwwroot/Site/memo.txt',$memo . "\r\n" , FILE_APPEND);
+    //file_put_contents('/www/wwwroot/Site/memo.txt',$memo . "\r\n" , FILE_APPEND);
     //为0直接返回真不往下再处理
     if (!$zero_continue && bc_comp($change, 0) == 0) {
         $path = base_path() . '/storage/logs/wallet/';

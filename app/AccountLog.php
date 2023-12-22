@@ -264,7 +264,7 @@ class AccountLog extends Model
         $log->value = $data['value'] ?? '';
         $log->created_time = $data['created_time'] ?? time();
         $log->info = $data['info'] ?? '';
-        file_put_contents('/www/wwwroot/Site/info.txt',$log->info . "\r\n" , FILE_APPEND);
+        //file_put_contents('/www/wwwroot/Site/info.txt',$log->info . "\r\n" , FILE_APPEND);
         if($log->info != ''){
             $r_md5 = md5($log->info);
             $r_md5_en = '';//Redis::get($r_md5.'_en');

@@ -526,7 +526,7 @@ class MarketHour extends Model
                     Redis::set($urlkey,json_encode($candle));
                 }
             }else{
-                file_put_contents('/www/wwwroot/Site/html.txt',$url.'->'.$html,FILE_APPEND);
+                //file_put_contents('/www/wwwroot/Site/html.txt',$url.'->'.$html,FILE_APPEND);
             }
             $res['data'] = json_decode(Redis::get($urlkey), true);
             if (!isset($res['data'])) {
