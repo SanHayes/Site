@@ -60,6 +60,9 @@ pip3 install redis
 pip3 install websocket
 
 ## 清理缓存
+运行目录 /public
+
+## 清理缓存
 php artisan config:cache
 
 ## 设置代理
