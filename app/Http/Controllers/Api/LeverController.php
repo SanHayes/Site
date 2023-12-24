@@ -93,7 +93,7 @@ class LeverController extends Controller
         
         return $this->success([
             //"match_transaction" => $match_transaction,
-            // "lever_transaction" => $lever_transaction,
+            "lever_transaction" => $lever_transaction,
             "my_transaction" => $my_transaction,
             "lever_share_limit" => $lever_share_limit,
             "multiple" => LeverTransaction::leverMultiple($key = 0,$currency_id),
