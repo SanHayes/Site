@@ -31,6 +31,18 @@
                 <input type="text" name="account_number" autocomplete="off" placeholder="" class="layui-input" value="{{$result->account_number}}">
             </div>
         </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">上级代理</label>
+            <div class="layui-input-block">
+                <select name="parent_id" lay-filter="parent_id_mode" {{$result->parent_id > 0 ? 'disabled' : ''}}>
+                    <option value="0">请选择代理账号</option>
+                    @foreach($agent as $item)
+                        <option value="{{$item['user_id']}}" {{ $result->parent_id == $item['user_id'] ? 'selected' : '' }} >{{$item['username']}}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label">密码</label>
