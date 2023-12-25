@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use App\DAO\BlockChain;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Utils\RPC;
+use App\DAO\UserDAO;
+use App\Agent;
 use App\{Address,
     AccountLog,
     Currency,
@@ -168,8 +170,10 @@ class UserController extends Controller
         $result = $result->leftjoin("user_real", "users.id", "=", "user_real.user_id")->select("users.*", "user_real.card_id")->find($id);
         //var_dump($result->toArray());die;
         $res = UserCashInfo::where('user_id', $id)->first();
+        $Agent = Agent::select("user_id", "username")->get();
+        
 
-        return view('admin.user.edit', ['result' => $result, 'res' => $res]);
+        return view('admin.user.edit', ['result' => $result, 'res' => $res,'agent'=>$Agent]);
     }
 
     //编辑用户信息
@@ -190,6 +194,7 @@ class UserController extends Controller
         $wechat_account = Input::get("wechat_account");
         $is_service = Input::get("is_service", 0) ?? 0;
         $risk = Input::get('risk', 0);
+        $parent_id = Input::get('parent_id', 0);
 
         $id = Input::get("id");
         if (empty($id)) return $this->error("参数错误");
@@ -197,6 +202,15 @@ class UserController extends Controller
         $user = Users::find($id);
         if (empty($user)) {
             return $this->error("数据未找到");
+        }
+        
+        if ($parent_id > 0 && $user->parent_id == 0) {
+            $user->parent_id = $parent_id;
+            $user->parents_path = UserDAO::getRealParentsPath($user); // 生成parents_path tian add
+            // 代理商节点id。标注该用户的上级代理商节点。这里存的代理商id是agent代理商表中的主键，并不是users表中的id。
+            $user->agent_note_id = Agent::reg_get_agent_id_by_parentid($parent_id);
+            // 代理商节点关系
+            $user->agent_path = Agent::agentPath($parent_id);
         }
 
         $user->account_number = $account_number;
