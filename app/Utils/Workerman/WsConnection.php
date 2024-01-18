@@ -18,7 +18,7 @@ class WsConnection
     protected $server_ping_freq = 5; //服务器ping检测周期,单位秒
     protected $server_time_out = 2; //服务器响应超时
     protected $send_freq = 2; //写入和发送数据的周期，单位秒
-    protected $micro_trade_freq = 1; //秒合约处理时间周期
+    protected $micro_trade_freq = 5; //秒合约处理时间周期
 
     protected $worker_id;
 
@@ -166,8 +166,8 @@ class WsConnection
         } else {
 //            $this->timer = Timer::add($this->server_ping_freq, [$this, 'ping'], [$this->connection], true);
 
-            $this->updatePriceTimer = Timer::add($this->micro_trade_freq, [$this, 'onMarketDepth'], [], true);
-            $this->updatePriceTimer = Timer::add($this->micro_trade_freq, [$this, 'onMarketDetail'], [], true);
+            $this->updatePriceTimer = Timer::add(30, [$this, 'onMarketDepth'], [], true);
+            $this->updatePriceTimer = Timer::add(30, [$this, 'onMarketDetail'], [], true);
 
             $this->depthTimer = Timer::add($this->micro_trade_freq, [$this, 'sendDepthData'], [], true);
             $this->detailTimer = Timer::add($this->micro_trade_freq, [$this, 'sendDetailData'], [], true);
