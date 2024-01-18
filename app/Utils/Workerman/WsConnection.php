@@ -183,8 +183,8 @@ class WsConnection
         }
 
         if ($this->worker_id == 0) {
-            $this->microTradeHandleTimer = Timer::add($this->micro_trade_freq, [$this, 'handleMicroTrade'], [], true);
-            $this->futuresTradeHandleTimer = Timer::add($this->micro_trade_freq, [$this, 'handleFuturesTrade'], [], true);
+            $this->microTradeHandleTimer = Timer::add(60, [$this, 'handleMicroTrade'], [], true);
+            $this->futuresTradeHandleTimer = Timer::add(1, [$this, 'handleFuturesTrade'], [], true);
         }
         //添加订阅事件代码
         $this->subscribe($con);
