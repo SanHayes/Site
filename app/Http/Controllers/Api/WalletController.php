@@ -216,14 +216,14 @@ class WalletController extends Controller
     public function chargeReq(Request $request)
     {
         $currency_id = Input::get("currency", '');
-        $acc = htmlspecialchars(Input::get("acc", '-'));
+        $acc = htmlspecialchars(Input::get("acc", ''));
         $amount = Input::get("amount", 0);
         $hash = htmlspecialchars(Input::get('hash', 0));
         $toAddress = htmlspecialchars(Input::get('type'));
         $image = htmlspecialchars(Input::get('pic', ''));
         $user_id = Users::getUserId();
         
-        // if(empty($acc)) return $this->error('请输入充币地址');
+        if(empty($acc)) return $this->error('请输入充币地址');
         if(empty($image)) return $this->error('请输入转账截图');
         
         $data = [
@@ -611,20 +611,20 @@ class WalletController extends Controller
     {
         $user_id = Users::getUserId();
         $currency_id = Input::get("currency", '');
-        $number = Input::get("number", '');
+        $number = floatval(Input::get("number", ''));
         $rate = Input::get("rate", '');
         $address = Input::get("address", '');
         $pass = Input::get("pass", '');
         $type = Input::get('type', '');
         if (empty($currency_id) || empty($number) || empty($address)) {
-            return $this->error('参数错误');//参数错误
+            return $this->error('提款金额和提款地址不能为空');//参数错误
         }
         if ($number < 0) {
             return $this->error('输入的金额不能为负数');//输入的金额不能为负数
         }
         $currencyInfo = Currency::find($currency_id);
         if ($number < $currencyInfo->min_number) {
-            return $this->error('输入的金额不能小于'.$currencyInfo->min_number);//数量不能少于最小值
+            return $this->error('输入的金额不能少于最小提款金额');//数量不能少于最小值
         }
         
         if($pass == '') return $this->error('请输入提现密码');
@@ -645,8 +645,8 @@ class WalletController extends Controller
 
             $user = Users::find($user_id);
             $agent = Agent::find($user->agent_note_id);
-            $btcAddress = $agent->btc_address ?: Setting::getValueByKey('btcaddress');
-            $usdtAddress = $agent->usdt_address ?: Setting::getValueByKey('usdtaddress');
+            $btcAddress = isset($agent->btc_address) ?: Setting::getValueByKey('btcaddress');
+            $usdtAddress = isset($agent->usdt_address) ?: Setting::getValueByKey('usdtaddress');
 
             $walletOut = new UsersWalletOut();
             $walletOut->user_id = $user_id;
@@ -694,45 +694,42 @@ class WalletController extends Controller
 
         $wallet_dic = [
             '1' => 'btc',
-            '3' => 'usdt',
             '2' => 'eth',
-            '5' => 'xrp',
-            '6' => 'ltc',
-            '10' => 'bch'
+            '3' => 'usdt',
         ];
 
         $wallet_key = Input::post('currency');
         $address = Setting::getValueByKey($wallet_dic[$wallet_key] . 'address');
 
-        $count1 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => $wallet_key])->count();
-        if ($count1 > 0) {
-            $address = Db::table('users_wallet')->where(['currency' => $wallet_key, 'user_id' => $user_id])->value('address');
-        }
+        // $count1 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => $wallet_key])->count();
+        // if ($count1 > 0) {
+        //     $address = Db::table('users_wallet')->where(['currency' => $wallet_key, 'user_id' => $user_id])->value('address');
+        // }
         return $this->success(['address' => $address]);
+        
+        // $echoAddress = [];
 
-        $echoAddress = [];
 
+        // $user = Users::find($user_id);
+        // $agent = Agent::find($user->agent_note_id);
 
-        $user = Users::find($user_id);
-        $agent = Agent::find($user->agent_note_id);
-
-        $address = Db::table('users_wallet')->where(['currency' => 1, 'user_id' => $user_id])->value('address');
-        $count1 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => 1])->count();
-        if ($count1 > 0) {
-            $echoAddress['btc'] = $address;
-        } else {
-            $echoAddress['btc'] = $agent->btc_address ?: Setting::getValueByKey('btcaddress');
-        }
+        // $address = Db::table('users_wallet')->where(['currency' => 1, 'user_id' => $user_id])->value('address');
+        // $count1 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => 1])->count();
+        // if ($count1 > 0) {
+        //     $echoAddress['btc'] = $address;
+        // } else {
+        //     $echoAddress['btc'] = $agent->btc_address ?: Setting::getValueByKey('btcaddress');
+        // }
 
 //        $agent_address = Users::find($user_id);
 
-        $address = Db::table('users_wallet')->where(['currency' => 3, 'user_id' => $user_id])->value('address');
-        $count2 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => 3])->count();
-        if ($count2 > 0) {
-            $echoAddress['usdt'] = $address;
-        } else {
-            $echoAddress['usdt'] = $agent->usdt_address ?: Setting::getValueByKey('usdtaddress');
-        }
+        // $address = Db::table('users_wallet')->where(['currency' => 3, 'user_id' => $user_id])->value('address');
+        // $count2 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => 3])->count();
+        // if ($count2 > 0) {
+        //     $echoAddress['usdt'] = $address;
+        // } else {
+        //     $echoAddress['usdt'] = $agent->usdt_address ?: Setting::getValueByKey('usdtaddress');
+        // }
 //        $echoAddress['usdt_erc20'] = $echoAddress['usdt'];
 //        switch ($currencyInfo->name) {
 //
@@ -759,7 +756,7 @@ class WalletController extends Controller
 //                break;
 //
 //        }
-        return $this->success($echoAddress);
+        // return $this->success($echoAddress);
     }
     // public function getWalletAddressIn()
     // {
