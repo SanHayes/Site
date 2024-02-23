@@ -18,7 +18,7 @@ class ApiController extends Controller
         if($rtp == 'GetQuotesDetail'){
             $id = Input::get("id", 0);
             if($id == 0){
-                $msg = 'SERVER_ERROR';
+                return 'SERVER_ERROR';
             }else{
                 $data = Cache::get($rtp . '&' . $id);
                 if ($data){
@@ -34,7 +34,7 @@ class ApiController extends Controller
             $type = Input::get("type", 1);
             $qid = Input::get("qid", 0);
             if($qid == 0){
-                $msg = 'SERVER_ERROR';
+                return 'SERVER_ERROR';
             }else{
                 $data = Cache::get($rtp . '&' . $qid . '&' . $type);
                 if ($data){
