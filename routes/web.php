@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Redis;
 | contains the "web" middleware group. Now create something great!
 |
  */
+Route::get('getapi', 'Api\ApiController@index');//数据接口
+
 Route::get('GoogleAuthenticator',function(){
     return GoogleAuthenticator();
 });
