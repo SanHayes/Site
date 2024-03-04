@@ -50,11 +50,11 @@ class ApiController extends Controller
     public function cache($rtp, $id, $type = 1)
     {
         if($rtp == 'GetQuotesDetail'){
-            $data = json_decode(file_get_contents('https://m.sojex.net/api.do?rtp=GetQuotesDetail&id=' . $id), true)['data'];
+            $data = json_decode(file_get_contents('https://m.sojex.net/api.do?rtp=GetQuotesDetail&id=' . $id, false, stream_context_create(array('ssl'=>array('verify_peer' => false,'verify_peer_name' => false)))), true)['data'];
             Cache::put($rtp . '&' . $id, $data, 1);
             return $data;
         }else{
-            $data = json_decode(file_get_contents('https://test.aozhao.vip/api.do?rtp=CandleStick&type='.$type.'&qid='.$id), true)['data'];
+            $data = json_decode(file_get_contents('https://test.aozhao.vip/api.do?rtp=CandleStick&type='.$type.'&qid='.$id, false, stream_context_create(array('ssl'=>array('verify_peer' => false,'verify_peer_name' => false)))), true)['data'];
             Cache::put($rtp . '&' . $id . '&' . $type, $data, $type);
             return $data;
         }
