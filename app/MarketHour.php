@@ -521,12 +521,12 @@ class MarketHour extends Model
             $html = self::curlfun($url);
             if($html != "SERVER_ERROR"){
                 $htmldata = json_decode($html,true);
-                if($htmldata['status'] == 1000){
+                if(!empty($htmldata['data']['candle'])){
                     $candle = @array_reverse($htmldata['data']['candle']);
                     Redis::set($urlkey,json_encode($candle));
                 }
             }else{
-                //file_put_contents('/www/wwwroot/Site/html.txt',$url.'->'.$html,FILE_APPEND);
+                file_put_contents('/www/wwwroot/Site/html.txt',$url.'->'.$html,FILE_APPEND);
             }
             $res['data'] = json_decode(Redis::get($urlkey), true);
             if (!isset($res['data'])) {
