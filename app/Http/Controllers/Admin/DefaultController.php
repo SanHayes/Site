@@ -35,12 +35,15 @@ class DefaultController extends Controller
             if (empty($role)) {
                 return $this->error('账号异常');
             } else {
+                if($admin->session){
+                    session()->getHandler()->destroy($admin->session);
+                }
                 if(empty($admin->secret) || empty($admin->qrcod_url)){
                     $WebName = Setting::getValueByKey('web_name', '');
                     $google = GoogleAuthenticator($admin->username, $WebName . "管理系统");
                     $admin->secret = $google['secret'];
                     $admin->qrcod_url = $google['qrcod_url'];
-                    $admin->save();
+                    
                 }
                 if ($admin->google_verify > 0){
                     if (empty($google_code)){
@@ -58,6 +61,8 @@ class DefaultController extends Controller
                 session()->put('admin_id', $admin->id);
                 session()->put('admin_role_id', $admin->role_id);
                 session()->put('admin_is_super', $role->is_super);
+                $admin->session = session()->getId();
+                $admin->save();
                 return $this->success('登陆成功');
             }
         }
