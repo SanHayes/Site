@@ -204,7 +204,7 @@
 			},
 			success : function(result) {
 				if (result.type == 'ok'){
-					window.location.href="/winadmin";
+					window.location.href="/winadmin/index";
 				}else{
 					alert(result.message)
 				}
