@@ -89,13 +89,18 @@ class AdminController extends Controller{
             $adminUser->qrcod_url = $google['qrcod_url'];
         }
         
+        
         try {
+            if($adminUser->session){
+                session()->getHandler()->destroy($adminUser->session);
+            }
             $adminUser->save();
         }catch (\Exception $ex){
             $validator->errors()->add('error', $ex->getMessage());
             return $this->error($validator->errors()->first());
         }
-        return $this->success('添加成功');
+        
+        return $this->success('操作成功');
     }
     
     public function google_verify(Request $request)
