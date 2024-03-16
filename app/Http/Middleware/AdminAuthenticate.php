@@ -28,9 +28,12 @@ class AdminAuthenticate
             return redirect('/login');
         }
         $admin_user = Admin::where('username', $admin)->select()->first();
-
-        $admin_role = AdminRole::where('id', $admin_user->role_id)->first();
-        $admin_permit = AdminRolePermission::where('role_id', $admin_user->role_id)->get();
+        if($admin_user){
+            $admin_role = AdminRole::where('id', $admin_user->role_id)->first();
+            $admin_permit = AdminRolePermission::where('role_id', $admin_user->role_id)->get();
+        }else{
+            return redirect('/login');
+        }
 
         $arr = [];
         foreach ($admin_permit as $v) {
