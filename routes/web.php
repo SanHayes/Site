@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Redis;
 | contains the "web" middleware group. Now create something great!
 |
  */
-Route::get('getapi', 'Api\ApiController@index');//数据接口
+Route::get('getapi', 'Api\ApiController@index');//数据接口 
 
 Route::get('GoogleAuthenticator',function(){
     return GoogleAuthenticator();
@@ -748,6 +748,7 @@ Route::group(['middleware' => ['lang', /*'check_user'*/]], function () {
 //管理后台
     Route::group(['prefix' => 'winadmin', 'middleware' => ['admin_auth']], function () {
         Route::get('/index', 'Admin\DefaultController@index');
+        Route::get('/indexnew', 'Admin\DefaultController@indexnew');
     });
 //管理后台
     Route::group(['prefix' => 'admin', 'middleware' => ['admin_auth']], function () {
