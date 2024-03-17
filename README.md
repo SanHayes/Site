@@ -18,20 +18,7 @@ yum install -y wget && wget -O install.sh https://download.bt.cn/install/install
 ### 删除所有禁用函数
 
 添加下面 函数禁用
-exec
-system
-shell_exec
-passthru
-chroot
-chgrp
-chown
-proc_open
-proc_get_status
-dl
-ini_restore
-ini_alter
-popen
-pfsockopen
+exec,system,shell_exec,passthru,chroot,chgrp,chown,proc_open,proc_get_status,dl,ini_restore,ini_alter,popen,pfsockopen
 
 ### PHP扩展：
 |扩展|说明|备注|
@@ -51,8 +38,7 @@ CentOS 7.6.1810(Py2.7.5)
 4核8G 容量大于50G
 
 ## python
-python3
-安装教程https://www.jb51.net/article/254648.htm
+yum install python
 pip3 -V
 pip3 install --upgrade pip
 pip3 install websocket-client 
