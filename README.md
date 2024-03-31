@@ -34,7 +34,7 @@ CentOS 7.6.1810(Py2.7.5)
 4核8G 容量大于50G
 
 ## python
-yum install python
+yum install python3
 pip3 -V
 pip3 install --upgrade pip
 pip3 install websocket-client 
