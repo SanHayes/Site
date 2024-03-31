@@ -82,15 +82,17 @@ service elasticsearch restart
 
 每天一次
 1.webmsgsender
-cd /www/wwwroot/Site-Bbucoin/public/vendor/webmsgsender
+cd /www/wwwroot/Site/public/vendor/webmsgsender
 php start.php start -d
-2.websocket
-cd /www/wwwroot/Site-Bbucoin
-php artisan websocket:client restart
-3.python
-cd /www/wwwroot/Site-Bbucoin/python
+
+2.python
+cd /www/wwwroot/Site/python
 pkill python3
 python3 main.py
+
+3.websocket
+cd /www/wwwroot/Site
+php artisan websocket:client restart
 
 ## 数据库 
 上传site.sql之后 附加到数据库，然后修改.env
