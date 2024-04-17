@@ -7,6 +7,10 @@ use App\WalletLog;
 defined('DECIMAL_SCALE') || define('DECIMAL_SCALE', 8);
 bcscale(DECIMAL_SCALE);
 
+function containsHtmlTags($string) {
+    return preg_match('/<[^<]+>/', $string) > 0;
+}
+
 function bc_add($left_operand, $right_operand, $out_scale = DECIMAL_SCALE)
 {
     return bc_method('bcadd', $left_operand, $right_operand, $out_scale);
@@ -42,41 +46,6 @@ function GoogleVerify($secret, $code)
     $checkResult = $google->verifyCode($secret,$code,$time);
     
     return ['result' => $checkResult];
-}
-
-function curlfun($url, $params = array(), $method = 'GET'){
-    $header = array();
-    $opts = array(CURLOPT_TIMEOUT => 10, CURLOPT_RETURNTRANSFER => 1, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false, CURLOPT_HTTPHEADER => $header);
-    
-    /* 根据请求类型设置特定参数 */
-    switch (strtoupper($method)) {
-            case 'GET' :
-                    $opts[CURLOPT_URL] = $url . '?' . http_build_query($params);
-                    $opts[CURLOPT_URL] = substr($opts[CURLOPT_URL],0,-1);
-                    
-                    break;
-            case 'POST' :
-                    //判断是否传输文件
-                    $params = http_build_query($params);
-                    $opts[CURLOPT_URL] = $url;
-                    $opts[CURLOPT_POST] = 1;
-                    $opts[CURLOPT_POSTFIELDS] = $params;
-                    break;
-            default :
-                    break;
-    }
-    
-    /* 初始化并执行curl请求 */
-    $ch = curl_init();
-    curl_setopt_array($ch, $opts);
-    $data = curl_exec($ch);
-    $error = curl_error($ch);
-    curl_close($ch);
-    
-    if($error){
-            $data = null;
-    }		
-    return $data;
 }
 
 function mtranslate($val, $to, $from = 'zh')
@@ -188,7 +157,7 @@ function sctonum($num, $double = DECIMAL_SCALE)
  */
 function change_wallet_balance(&$wallet, $balance_type, $change, $account_log_type, $memo = '', $is_lock = false, $from_user_id = 0, $extra_sign = 0, $extra_data = '', $zero_continue = false, $overflow = false)
 {
-    //file_put_contents('/www/wwwroot/Site/memo.txt',$memo . "\r\n" , FILE_APPEND);
+    file_put_contents('/www/wwwroot/Site/memo.txt',$memo . "\r\n" , FILE_APPEND);
     //为0直接返回真不往下再处理
     if (!$zero_continue && bc_comp($change, 0) == 0) {
         $path = base_path() . '/storage/logs/wallet/';
