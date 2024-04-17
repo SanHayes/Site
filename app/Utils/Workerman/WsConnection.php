@@ -183,7 +183,7 @@ class WsConnection
         }
 
         if ($this->worker_id == 0) {
-            $this->microTradeHandleTimer = Timer::add(60, [$this, 'handleMicroTrade'], [], true);
+            $this->microTradeHandleTimer = Timer::add(3600, [$this, 'handleMicroTrade'], [], true);
             $this->futuresTradeHandleTimer = Timer::add(1, [$this, 'handleFuturesTrade'], [], true);
         }
         //添加订阅事件代码
@@ -288,7 +288,7 @@ class WsConnection
             $sub_data = json_encode([
                 'sub' => $topic,
                 'id' => $topic,
-                //'freq-ms' => 5000, //推送频率，实测只能是0和5000，与官网文档不符
+                'freq-ms' => 5000, //推送频率，实测只能是0和5000，与官网文档不符
             ]);
             //未订阅过的才能订阅
             if (is_null($this->getSubscribed($topic))) {
@@ -518,6 +518,7 @@ class WsConnection
             $sub_data = json_encode([
                 'sub' => $topic,
                 'id' => $topic,
+                'freq-ms' => 5000, //推送频率，实测只能是0和5000，与官网文档不符
             ]);
             //未订阅过的才能订阅
             if (is_null($this->getSubscribed($topic))) {
@@ -541,6 +542,7 @@ class WsConnection
             $sub_data = json_encode([
                 'sub' => $topic,
                 'id' => $topic,
+                'freq-ms' => 5000, //推送频率，实测只能是0和5000，与官网文档不符
             ]);
             //未订阅过的才能订阅
             if (is_null($this->getSubscribed($topic))) {
@@ -1264,5 +1266,4 @@ class WsConnection
     }
 
 }
-
 
