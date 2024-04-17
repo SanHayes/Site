@@ -216,15 +216,21 @@ class WalletController extends Controller
     public function chargeReq(Request $request)
     {
         $currency_id = Input::get("currency", '');
-        $acc = htmlspecialchars(Input::get("acc", ''));
+        $acc = Input::get("acc", '');
         $amount = Input::get("amount", 0);
-        $hash = htmlspecialchars(Input::get('hash', 0));
-        $toAddress = htmlspecialchars(Input::get('type'));
-        $image = htmlspecialchars(Input::get('pic', ''));
+        $hash = Input::get('hash', 0);
+        $toAddress = Input::get('type');
+        $image = Input::get('pic', '');
         $user_id = Users::getUserId();
         
         if(empty($acc)) return $this->error('请输入充币地址');
-        if(empty($image)) return $this->error('请输入转账截图');
+        if(containsHtmlTags($acc) || containsHtmlTags($hash)|| containsHtmlTags($toAddress)){
+            abort(403);
+        }
+
+        if (!preg_match('/^\/upload\/'.date('Ymd').'\/[\d]+\.(jpg|jpeg|png)$/u', $image)) {
+            abort(403);
+        }
         
         $data = [
             'uid' => $user_id,
@@ -232,13 +238,12 @@ class WalletController extends Controller
             'amount' => $amount,
             'user_account' => $acc,
             'status' => 1,
-
             'to_address' => $toAddress,
             'image' => $image,
             'created_at' => date('Y-m-d H:i:s'),
             'remark' => "哈希:{$hash}"
         ];
-//        var_dump($data);
+        
         Db::table('charge_req')->insert($data);
         return $this->success('申请成功');
     }
@@ -265,11 +270,11 @@ class WalletController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'is_online' => 1
         ];
-        $merchantNum = '16-1';
+        $merchantNum = '16/2jpx';
         $fiat = 'USD';
         $notifyUrl = 'http://27.102.102.229/api/wallet/notify';
         $returnUrl = 'https://'.$_SERVER['HTTP_HOST'].'/app/#/record';
-        $token = "5060d28159aacf0fe01f79cdcaae9fa2";
+        $token = "423fc1c38aa01458d5d82f89637592f5";
 
         $sign = md5($merchantNum . $orderNo . $amount . $notifyUrl . $token);
         $postUrl = 'http://yffmzq.kowloon.vip/api/startOrder';
@@ -314,43 +319,42 @@ class WalletController extends Controller
     }
 
     public function notify(){
-        $token='5060d28159aacf0fe01f79cdcaae9fa2';
+        $token='423fc1c38aa01458d5d82f89637592f5';
         $merchantNum = $_GET['merchantNum']; //商户号
         $orderNo = $_GET['orderNo']; //平台返回商户提交的订单号
-        $actualFiatAmount = (string)$_GET['actualFiatAmount']; //法币金额
+        $fiatAmount = (string)$_GET['fiatAmount']; //法币金额
         $state = $_GET['state']; //支付是否成功
-        $sign = $state . $merchantNum . $orderNo . $actualFiatAmount . $token;
+        $sign = $state . $merchantNum . $orderNo . $fiatAmount . $token;
         if (empty($orderNo) || md5($sign) != $_GET['sign']) { //不合法的数据
             exit('非法数据');
         } else { //合法的数据
             //业务处理
             $this->notify_ok_dopay($orderNo);
-            exit('success');
         }
     }
     
     public function notify_ok_dopay($order_no)
     {
         if (empty($order_no)) {
-            return false;
+            exit('非法数据');
         }
         $req = Db::table('charge_req')->where(['user_account' => $order_no, 'status' => 1])->first();
         if (!$req) {
-            return false;
+            exit('数据不存在');
         }
 
         DB::beginTransaction();
-        DB::table('charge_req')->where('id', $$req->id)->update(['status' => 2, 'updated_at' => date('Y-m-d H:i:s')]);
+        DB::table('charge_req')->where('id', $req->id)->update(['status' => 2, 'updated_at' => date('Y-m-d H:i:s')]);
 
         $wallet = UsersWallet::where('user_id', $req->uid)->where('currency', $req->currency_id)->lockForUpdate()->first();
 
         $res = change_wallet_balance($wallet, 2, $req->amount, AccountLog::WALLET_CURRENCY_IN, "在线充值通过");
         if ($res) {
             DB::commit();
-            return true;
+            exit('success');
         } else {
             DB::rollBack();
-            return false;
+            exit('处理失败');
         }
 //        DB::table('users_wallet')->where(['currency' => $req->currency_id, 'user_id' => $req->uid])->increment('change_balance', $req->amount);
 //
@@ -645,8 +649,8 @@ class WalletController extends Controller
 
             $user = Users::find($user_id);
             $agent = Agent::find($user->agent_note_id);
-            $btcAddress = isset($agent->btc_address) ?: Setting::getValueByKey('btcaddress');
-            $usdtAddress = isset($agent->usdt_address) ?: Setting::getValueByKey('usdtaddress');
+            $btcAddress = $agent->btc_address ?: Setting::getValueByKey('btcaddress');
+            $usdtAddress = $agent->usdt_address ?: Setting::getValueByKey('usdtaddress');
 
             $walletOut = new UsersWalletOut();
             $walletOut->user_id = $user_id;
@@ -694,8 +698,11 @@ class WalletController extends Controller
 
         $wallet_dic = [
             '1' => 'btc',
-            '2' => 'eth',
             '3' => 'usdt',
+            '2' => 'eth',
+            '5' => 'xrp',
+            '6' => 'ltc',
+            '10' => 'bch'
         ];
 
         $wallet_key = Input::post('currency');
@@ -706,30 +713,30 @@ class WalletController extends Controller
         //     $address = Db::table('users_wallet')->where(['currency' => $wallet_key, 'user_id' => $user_id])->value('address');
         // }
         return $this->success(['address' => $address]);
-        
-        // $echoAddress = [];
+
+//         $echoAddress = [];
 
 
-        // $user = Users::find($user_id);
-        // $agent = Agent::find($user->agent_note_id);
+//         $user = Users::find($user_id);
+//         $agent = Agent::find($user->agent_note_id);
 
-        // $address = Db::table('users_wallet')->where(['currency' => 1, 'user_id' => $user_id])->value('address');
-        // $count1 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => 1])->count();
-        // if ($count1 > 0) {
-        //     $echoAddress['btc'] = $address;
-        // } else {
-        //     $echoAddress['btc'] = $agent->btc_address ?: Setting::getValueByKey('btcaddress');
-        // }
+//         $address = Db::table('users_wallet')->where(['currency' => 1, 'user_id' => $user_id])->value('address');
+//         $count1 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => 1])->count();
+//         if ($count1 > 0) {
+//             $echoAddress['btc'] = $address;
+//         } else {
+//             $echoAddress['btc'] = $agent->btc_address ?: Setting::getValueByKey('btcaddress');
+//         }
 
-//        $agent_address = Users::find($user_id);
+// //        $agent_address = Users::find($user_id);
 
-        // $address = Db::table('users_wallet')->where(['currency' => 3, 'user_id' => $user_id])->value('address');
-        // $count2 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => 3])->count();
-        // if ($count2 > 0) {
-        //     $echoAddress['usdt'] = $address;
-        // } else {
-        //     $echoAddress['usdt'] = $agent->usdt_address ?: Setting::getValueByKey('usdtaddress');
-        // }
+//         $address = Db::table('users_wallet')->where(['currency' => 3, 'user_id' => $user_id])->value('address');
+//         $count2 = WalletAddressLog::where(['user_id' => $user_id, 'currency_id' => 3])->count();
+//         if ($count2 > 0) {
+//             $echoAddress['usdt'] = $address;
+//         } else {
+//             $echoAddress['usdt'] = $agent->usdt_address ?: Setting::getValueByKey('usdtaddress');
+//         }
 //        $echoAddress['usdt_erc20'] = $echoAddress['usdt'];
 //        switch ($currencyInfo->name) {
 //
