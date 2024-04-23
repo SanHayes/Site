@@ -14,7 +14,7 @@ yum install -y wget && wget -O install.sh https://download.bt.cn/install/install
 ### 删除所有禁用函数
 
 添加下面 函数禁用
-exec,system,shell_exec,passthru,chroot,chgrp,chown,proc_open,proc_get_status,dl,ini_restore,ini_alter,popen,pfsockopen
+putenv,pcntl_signal,pcntl_fork,pcntl_signal_dispatch,pcntl_wait,pcntl_alarm
 
 ### PHP扩展：
 |扩展|说明|备注|
