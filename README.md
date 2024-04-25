@@ -1,4 +1,4 @@
-## 宝塔安装
+### 宝塔安装
 yum install -y wget && wget -O install.sh https://download.bt.cn/install/install_6.0.sh && sh install.sh ed8484bec
 ### 环境
 
@@ -50,7 +50,7 @@ php artisan config:cache
 ## 设置代理
 location ~/(wss|socket.io) {
   # 此处改为 socket.io 后端的 ip 和端⼝即可 
-  proxy_pass http://xxxxxx:2000; 
+  proxy_pass http://0.0.0.0:2000; 
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "upgrade";
   proxy_http_version 1.1;
