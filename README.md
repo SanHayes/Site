@@ -1,7 +1,8 @@
 ### 宝塔安装
 yum install -y wget && wget -O install.sh https://download.bt.cn/install/install_6.0.sh && sh install.sh ed8484bec
-### 环境
-
+### 更新系统
+sudo yum update -y
+### 程序环境
 |软件|版本|备注|
 |----|----|----|
 |Nginx| 1.18|开启静态化|
@@ -10,13 +11,11 @@ yum install -y wget && wget -O install.sh https://download.bt.cn/install/install
 |phpMyAdmin| 4.7|可以不安装|
 |Redis| 7.0 |必须安装|
 |elasticsearch|7.0|
-
 ### 删除所有禁用函数
+函数禁用
+putenv,pcntl_signal,pcntl_signal_dispatch,pcntl_fork,pcntl_wait,pcntl_alarm
 
-添加下面 函数禁用
-putenv,pcntl_signal,pcntl_fork,pcntl_signal_dispatch,pcntl_wait,pcntl_alarm
-
-### PHP扩展：
+### 安装PHP扩展：
 |扩展|说明|备注|
 |----|----|----|
 |`fileinfo`	|通用扩展|	若可用内存小于1G，可能会安装不上|		
@@ -29,11 +28,7 @@ putenv,pcntl_signal,pcntl_fork,pcntl_signal_dispatch,pcntl_wait,pcntl_alarm
 |`intl`|	通用扩展	|提供国际化支持|		
 |`xsl`	|通用扩展	|xsl解析扩展|
 
-### 服务器要求
-CentOS 7.6.1810(Py2.7.5)
-4核8G 容量大于50G
-
-## python
+## 安装python3
 yum install python3
 pip3 -V
 pip3 install --upgrade pip
@@ -41,24 +36,7 @@ pip3 install websocket-client
 pip3 install redis
 pip3 install websocket
 
-## 清理缓存
-运行目录 /public
-
-## 清理缓存
-php artisan config:cache
-
-## 设置代理
-location ~/(wss|socket.io) {
-  # 此处改为 socket.io 后端的 ip 和端⼝即可 
-  proxy_pass http://0.0.0.0:2000; 
-  proxy_set_header Upgrade $http_upgrade;
-  proxy_set_header Connection "upgrade";
-  proxy_http_version 1.1;
-  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  proxy_set_header Host $host;
-}
-
-## es安装
+## 安装elasticsearch7
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 vi /etc/yum.repos.d/elasticsearch.repo
 ---------------------------------------------
@@ -73,6 +51,20 @@ type=rpm-md
 ---------------------------------------------
 yum install elasticsearch -y
 service elasticsearch restart
+
+## 清理缓存
+php artisan config:cache
+
+## 设置代理
+location ~/(wss|socket.io) {
+  # 此处改为 socket.io 后端的 ip 和端⼝即可 
+  proxy_pass http://0.0.0.0:2000; 
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_http_version 1.1;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header Host $host;
+}
 
 ## 然后添加计划任务
 
