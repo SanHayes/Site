@@ -4,6 +4,7 @@ namespace App\Utils\Workerman;
 
 use App\Jobs\UpdateCurrencyPrice;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use Workerman\Connection\AsyncTcpConnection;
@@ -183,7 +184,7 @@ class WsConnection
         }
 
         if ($this->worker_id == 0) {
-            $this->microTradeHandleTimer = Timer::add(3600, [$this, 'handleMicroTrade'], [], true);
+            $this->microTradeHandleTimer = Timer::add(60, [$this, 'handleMicroTrade'], [], true);
             $this->futuresTradeHandleTimer = Timer::add(1, [$this, 'handleFuturesTrade'], [], true);
         }
         //添加订阅事件代码
@@ -288,7 +289,7 @@ class WsConnection
             $sub_data = json_encode([
                 'sub' => $topic,
                 'id' => $topic,
-                'freq-ms' => 5000, //推送频率，实测只能是0和5000，与官网文档不符
+                //'freq-ms' => 5000, //推送频率，实测只能是0和5000，与官网文档不符
             ]);
             //未订阅过的才能订阅
             if (is_null($this->getSubscribed($topic))) {
@@ -481,20 +482,24 @@ class WsConnection
                     if ($period == '1min') {
                         // var_dump($symbol['kline_data']);
                         //推送一分钟行情
-                        //SendMarket::dispatch($symbol['kline_data'])->onQueue('kline.1min');
+                        SendMarket::dispatch($symbol['kline_data'])->onQueue('kline.1min');
+                        //存入数据库
+                        CurrencyQuotation::getInstance($symbol['kline_data']['legal_id'], $symbol['kline_data']['currency_id'])
+                            ->updateData([
+                                'now_price' => $symbol['kline_data']['close'],
+                            ]);
                         //更新币种价格
                         UpdateCurrencyPrice::dispatch($symbol['kline_data'])->onQueue('update_currency_price');
                     } elseif ($period == '1day') {
                         //推送一天行情
                         $day_kline = $symbol['kline_data'];
                         $day_kline['type'] = 'kline';
-                        SendMarket::dispatch($day_kline)->onQueue('kline.all');
+                        // SendMarket::dispatch($day_kline)->onQueue('kline.all');
                         // SendMarket::dispatch($symbol['kline_data'])->onQueue('kline.1day');
-                        //存入数据库
+                        SendMarket::dispatch($day_kline)->onQueue('kline.all');
                         CurrencyQuotation::getInstance($symbol['kline_data']['legal_id'], $symbol['kline_data']['currency_id'])
                             ->updateData([
                                 'change' => $symbol['kline_data']['change'],
-                                'now_price' => $symbol['kline_data']['close'],
                                 'volume' => $symbol['kline_data']['volume'],
                             ]);
                     } else {
@@ -518,7 +523,6 @@ class WsConnection
             $sub_data = json_encode([
                 'sub' => $topic,
                 'id' => $topic,
-                'freq-ms' => 5000, //推送频率，实测只能是0和5000，与官网文档不符
             ]);
             //未订阅过的才能订阅
             if (is_null($this->getSubscribed($topic))) {
@@ -542,7 +546,6 @@ class WsConnection
             $sub_data = json_encode([
                 'sub' => $topic,
                 'id' => $topic,
-                'freq-ms' => 5000, //推送频率，实测只能是0和5000，与官网文档不符
             ]);
             //未订阅过的才能订阅
             if (is_null($this->getSubscribed($topic))) {
@@ -762,6 +765,52 @@ class WsConnection
 		}
 		return $time * 1000;
 	}
+	
+	public function getapi($rtp, $id, $type=1)
+    {
+        $msg = 'http';
+        $data = 'SERVER_ERROR';
+        if($rtp == 'GetQuotesDetail'){
+            if($id == 0){
+                return 'SERVER_ERROR';
+            }else{
+                $data = Cache::get($rtp . '&' . $id);
+                if ($data){
+                    $time = time() * 1000;
+                    $data['quotes']['updatetime'] = $time;
+                    $data['quotes']['time'] = date('m-d H:i:s', $time / 1000);
+                    return array("msg" => 'cache', "time" => time(), "date" => date('m-d H:i:s'), "data" => $data);
+                } else {
+                    $data = $this->cache($rtp, $id);
+                }
+            }
+        }else{
+            if($id == 0){
+                return 'SERVER_ERROR';
+            }else{
+                $data = Cache::get($rtp . '&' . $id . '&' . $type);
+                if ($data){
+                    return array("msg" => 'cache', "time" => time(), "date" => date('m-d H:i:s'), "data" => $data);
+                } else {
+                    $data = $this->cache($rtp, $id, $type);
+                }
+            }
+        }
+        return array("msg" => $msg, "time" => time(), "date" => date('m-d H:i:s'), "data" => $data);
+    }
+    
+    public function cache($rtp, $id, $type = 1)
+    {
+        if($rtp == 'GetQuotesDetail'){
+            $data = json_decode(file_get_contents('https://m.sojex.net/api.do?rtp=GetQuotesDetail&id=' . $id, false, stream_context_create(array('ssl'=>array('verify_peer' => false,'verify_peer_name' => false)))), true)['data'];
+            Cache::put($rtp . '&' . $id, $data, 1);
+            return $data;
+        }else{
+            $data = json_decode(file_get_contents('https://m.sojex.net/api.do?rtp=CandleStick&type='.$type.'&qid='.$id, false, stream_context_create(array('ssl'=>array('verify_peer' => false,'verify_peer_name' => false)))), true)['data'];
+            Cache::put($rtp . '&' . $id . '&' . $type, $data, $type);
+            return $data;
+        }
+    }
 
     public function saveQuotation()
     {
@@ -782,16 +831,7 @@ class WsConnection
                 "1year" => 9,
             ];
             $interval = $interval_list[$period];
-            $API = Setting::getValueByKey('api_url');
-            $url = $API . "?rtp=CandleStick&type=".$interval."&qid=".$currency->currency_code;
-            //$url = "https://m.sojex.net/api.do?rtp=CandleStick&type=".$interval."&qid=".$currency->currency_code;
-            //$url = "https://m.sojex.net/api.do?rtp=GetQuotesDetail&id=".$currency->currency_code;
-            $html = $this->curlfun($url);
-            $obj = [];
-        	if($html != "SERVER_ERROR"){
-        		$obj = @array_reverse(json_decode($html,true)['data']['candle'])[0];
-        		//$obj = @array_reverse(json_decode($html,true)['data']['quotes']);
-        	}
+            $obj = @array_reverse($this->getapi('CandleStick', $currency->currency_code)['data']['candle'])[0];
         	if($obj){
         	    $close_rand = 0;
         	    $min = pow(10,strlen(substr(strrchr($currency->fluctuate_min, "."), 1)));
@@ -1266,4 +1306,5 @@ class WsConnection
     }
 
 }
+
 
